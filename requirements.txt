@@ -2,8 +2,8 @@ librosa
 noisereduce
 scipy
 numpy
-opencv-python
-tensorflow
+opencv-python-headless
+tensorflow-cpu
 scikit-learn
 pandas
 tqdm
