@@ -3,9 +3,25 @@ import shutil
 import subprocess
 import sys
 import tempfile
+import gdown
 
 import streamlit as st
 
+def download_models():
+    # Download encoder model
+    encoder_path = "encoder_model.h5"
+    if not os.path.exists(encoder_path):
+        st.info("Downloading encoder_model.h5 (first time only)...")
+        # ID: 1c1KdgVNx5L18pkuZjWQMHTqYMKUVyoiS
+        gdown.download(id="1c1KdgVNx5L18pkuZjWQMHTqYMKUVyoiS", output=encoder_path, quiet=False)
+        
+    # Download AlexNet model
+    os.makedirs("alexnet", exist_ok=True)
+    alexnet_path = os.path.join("alexnet", "tf_alexnet.keras")
+    if not os.path.exists(alexnet_path):
+        st.info("Downloading tf_alexnet.keras (first time only)...")
+        # ID: 1AaP8QskC3hmlA2QC0vuwNtvgyrBmOzHO
+        gdown.download(id="1AaP8QskC3hmlA2QC0vuwNtvgyrBmOzHO", output=alexnet_path, quiet=False)
 
 def run_inference(zip_file):
     if zip_file is None:
@@ -54,6 +70,7 @@ uploaded = st.file_uploader("Upload WAV Files (ZIP)", type=["zip"])
 
 if st.button("Run Inference"):
     with st.spinner("Running inference..."):
+        download_models()
         results, timing, logs = run_inference(uploaded)
 
     if results and not results.startswith("Error"):
