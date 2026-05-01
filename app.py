@@ -4,8 +4,8 @@ import shutil
 import subprocess
 import time
 
-def process_audio(zip_file):
-    if zip_file is None:
+def process_audio(zip_file_path):
+    if zip_file_path is None:
         return "Please upload a zip file containing .wav files.", ""
     
     # 1. Setup workspace
@@ -16,7 +16,7 @@ def process_audio(zip_file):
     
     # 2. Extract files
     try:
-        shutil.unpack_archive(zip_file.name, input_dir)
+        shutil.unpack_archive(zip_file_path, input_dir)
     except Exception as e:
         return f"Error unpacking zip: {str(e)}", ""
 
@@ -50,7 +50,7 @@ with gr.Blocks(title="Audio Anomaly Detection Pipeline") as demo:
     gr.Markdown("Upload a **ZIP file** containing your `.wav` recordings. This Space runs the Autoencoder + AlexNet pipeline.")
     
     with gr.Row():
-        file_input = gr.File(label="Upload WAV Files (ZIP)", file_types=[".zip"])
+        file_input = gr.File(label="Upload WAV Files (ZIP)", file_types=[".zip"], type="filepath")
     
     with gr.Row():
         run_btn = gr.Button("Run Inference", variant="primary")
