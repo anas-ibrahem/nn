@@ -59,7 +59,12 @@ with gr.Blocks(title="Audio Anomaly Detection Pipeline") as demo:
         output_results = gr.Textbox(label="Predictions (results.txt)", lines=10)
         output_time = gr.Textbox(label="Timing Info (time.txt)", lines=2)
 
-    run_btn.click(fn=process_audio, inputs=file_input, outputs=[output_results, output_time])
+    run_btn.click(
+        fn=process_audio,
+        inputs=file_input,
+        outputs=[output_results, output_time],
+        api_name="run_inference"
+    )
 
 if __name__ == "__main__":
     demo.launch(server_name="0.0.0.0", server_port=7860)
