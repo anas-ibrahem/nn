@@ -62,4 +62,4 @@ with gr.Blocks(title="Audio Anomaly Detection Pipeline") as demo:
     run_btn.click(fn=process_audio, inputs=file_input, outputs=[output_results, output_time])
 
 if __name__ == "__main__":
-    demo.launch(server_name="0.0.0.0", server_port=7860, show_api=False)
+    demo.launch(server_name="0.0.0.0", server_port=7860)
