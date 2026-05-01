@@ -4,89 +4,77 @@ import shutil
 import subprocess
 import time
 import traceback
+import sys
 
+# ─── DEBUG FUNCTION ───────────────────────────────────────────────
+def debug_environment():
+    lines = []
+
+    lines.append("=== PYTHON ===")
+    lines.append(sys.executable)
+    lines.append(sys.version)
+
+    lines.append("\n=== WORKING DIRECTORY ===")
+    cwd = os.getcwd()
+    lines.append(cwd)
+
+    lines.append("\n=== FILES IN CWD ===")
+    try:
+        for f in sorted(os.listdir(cwd)):
+            lines.append(f"  {f}")
+    except Exception as e:
+        lines.append(f"ERROR: {e}")
+
+    lines.append("\n=== infer.py EXISTS? ===")
+    lines.append(str(os.path.exists("infer.py")))
+
+    lines.append("\n=== ENVIRONMENT VARIABLES ===")
+    for k, v in sorted(os.environ.items()):
+        lines.append(f"  {k}={v}")
+
+    lines.append("\n=== INSTALLED PACKAGES (pip list) ===")
+    try:
+        r = subprocess.run([sys.executable, "-m", "pip", "list"],
+                           capture_output=True, text=True, timeout=30)
+        lines.append(r.stdout)
+        if r.stderr:
+            lines.append("STDERR: " + r.stderr)
+    except Exception as e:
+        lines.append(f"ERROR: {e}")
+
+    lines.append("\n=== TEST: can python run at all? ===")
+    try:
+        r = subprocess.run([sys.executable, "-c", "print('subprocess OK')"],
+                           capture_output=True, text=True, timeout=10)
+        lines.append(f"stdout: {r.stdout.strip()}")
+        lines.append(f"stderr: {r.stderr.strip()}")
+        lines.append(f"returncode: {r.returncode}")
+    except Exception as e:
+        lines.append(f"ERROR: {e}")
+
+    lines.append("\n=== TEST: import infer ===")
+    try:
+        r = subprocess.run([sys.executable, "-c", "import infer; print('import OK')"],
+                           capture_output=True, text=True, timeout=15)
+        lines.append(f"stdout: {r.stdout.strip()}")
+        lines.append(f"stderr: {r.stderr.strip()}")
+    except Exception as e:
+        lines.append(f"ERROR: {e}")
+
+    return "\n".join(lines)
+
+
+# ─── MAIN FUNCTION ────────────────────────────────────────────────
 def process_audio(zip_file):
     if zip_file is None:
-        return "Please upload a zip file containing .wav files.", ""
+        return "Please upload a zip file.", ""
 
-    # ✅ FIX 1: Handle both Gradio 3.x (object) and 4.x (string path)
-    if hasattr(zip_file, "name"):
-        zip_file_path = zip_file.name   # Gradio 3.x
-    else:
-        zip_file_path = zip_file        # Gradio 4.x returns string
+    zip_file_path = zip_file.name if hasattr(zip_file, "name") else zip_file
 
     if not os.path.exists(zip_file_path):
-        return f"Uploaded file not found at: {zip_file_path}", ""
+        return f"Uploaded file not found at path: {zip_file_path}", ""
 
-    # 1. Setup workspace
     input_dir = "hf_input_data"
     if os.path.exists(input_dir):
         shutil.rmtree(input_dir)
-    os.makedirs(input_dir)
-
-    # 2. Extract files
-    try:
-        shutil.unpack_archive(zip_file_path, input_dir)
-    except Exception as e:
-        return f"Error unpacking zip: {str(e)}\n\nPath used: {zip_file_path}", ""
-
-    # ✅ FIX 2: Verify infer.py exists before calling it
-    if not os.path.exists("infer.py"):
-        return "Error: infer.py not found in working directory.", ""
-
-    # ✅ FIX 3: Show full stderr + stdout on failure
-    try:
-        result = subprocess.run(
-            ["python", "infer.py", input_dir],
-            capture_output=True,
-            text=True,
-            timeout=300  # prevent hanging
-        )
-        if result.returncode != 0:
-            return (
-                f"Inference Error (exit code {result.returncode}):\n"
-                f"--- STDERR ---\n{result.stderr}\n"
-                f"--- STDOUT ---\n{result.stdout}"
-            ), ""
-    except subprocess.TimeoutExpired:
-        return "Error: Inference script timed out after 5 minutes.", ""
-    except Exception as e:
-        return f"Execution Error:\n{traceback.format_exc()}", ""
-
-    # 4. Read results
-    results_text = "No results.txt found after inference."
-    if os.path.exists("results.txt"):
-        with open("results.txt", "r") as f:
-            results_text = f.read()
-
-    time_text = "No time.txt found."
-    if os.path.exists("time.txt"):
-        with open("time.txt", "r") as f:
-            time_text = f.read()
-
-    return results_text, time_text
-
-
-with gr.Blocks(title="Audio Anomaly Detection Pipeline") as demo:
-    gr.Markdown("# 🚀 Audio Anomaly Detection")
-    gr.Markdown("Upload a **ZIP file** containing your `.wav` recordings.")
-
-    with gr.Row():
-        file_input = gr.File(label="Upload WAV Files (ZIP)", file_types=[".zip"])
-
-    with gr.Row():
-        run_btn = gr.Button("Run Inference", variant="primary")
-
-    with gr.Row():
-        output_results = gr.Textbox(label="Predictions (results.txt)", lines=10)
-        output_time = gr.Textbox(label="Timing Info (time.txt)", lines=2)
-
-    run_btn.click(
-        fn=process_audio,
-        inputs=file_input,
-        outputs=[output_results, output_time],
-        api_name="run_inference"
-    )
-
-if __name__ == "__main__":
-    demo.launch(server_name="0.0.0.0", server_port=7860)
+    os.makedi
