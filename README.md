@@ -1,16 +1,3 @@
----
-title: Team 19 Audio Anomaly Detection
-emoji: 🚀
-colorFrom: blue
-colorTo: indigo
-sdk: gradio
-sdk_version: 5.6.0
-app_file: app.py
-pinned: false
-license: mit
-python_version: 3.10.13
----
-
 # Audio Anomaly Detection Pipeline
 
 This Space runs a deep learning pipeline for detecting anomalies in industrial audio recordings.

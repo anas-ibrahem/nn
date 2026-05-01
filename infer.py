@@ -88,15 +88,7 @@ def main():
     print("Loading models and scalers...")
     try:
         # 1. Load Autoencoder MinMax Scaler
-        if os.path.exists('scaler_params.npz'):
-            scaler_data = np.load('scaler_params.npz')
-            GLOBAL_X_MIN = scaler_data['X_min']
-            GLOBAL_X_MAX = scaler_data['X_max']
-        else:
-            # Mathematical certainty: librosa.power_to_db(ref=np.max) yields [-80.0, 0.0]
-            # Since you checked X_scaled.min() returning 0.0 and 1.0, these are the TRUE raw limits!
-            print("Warning: scaler_params.npz not found for Autoencoder. Using librosa true limits [-80, 0].")
-            GLOBAL_X_MIN, GLOBAL_X_MAX = -80.0, 0.0
+        GLOBAL_X_MIN, GLOBAL_X_MAX = -80.0, 0.0
         
         # 2. Load the trained Autoencoder bottleneck (Encoder)
         encoder = tf.keras.models.load_model('encoder_model.h5')
@@ -122,17 +114,8 @@ def main():
         )
         print("Models loaded successfully.")
     except Exception as e:
-        print(f"File not found for model/scaler loading: {e}\nFalling back to Dummy Models for placeholder.")
-        GLOBAL_X_MIN, GLOBAL_X_MAX = 0.0, 1.0
-        
-        class DummyEncoder:
-            def predict(self, X, verbose=0): return np.zeros((1, 256))
-            
-        class DummyClassifier:
-            def predict(self, X, verbose=0): return np.zeros((1, 6)) # 6 classes
-            
-        encoder = DummyEncoder()
-        classifier = DummyClassifier()
+        print(f"Error loading models or scalers: {str(e)}")
+        sys.exit(1)
 
     # ---------------------------------------------------------
     # PROCESS EACH AUDIO FILE
@@ -142,7 +125,7 @@ def main():
         file_path = os.path.join(data_dir, wav_file)
         
         audio_data, sr = librosa.load(file_path, sr=TARGET_SR, duration=10.0) 
-        
+        print("Percentage done:", f"{(len(results) / len(wav_files)) * 100:.2f}%")
         # =========================================================
         # START TIMER HERE! (After reading the file)
         # =========================================================
