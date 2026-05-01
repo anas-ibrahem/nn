@@ -1,0 +1,12 @@
+librosa
+noisereduce
+scipy
+numpy
+opencv-python
+tensorflow
+scikit-learn
+pandas
+tqdm
+xgboost
+gradio
+
