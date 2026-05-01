@@ -45,7 +45,8 @@ def run_inference(zip_file):
         stderr = result.stderr.strip()
         stdout = result.stdout.strip()
         msg = stderr if stderr else stdout if stdout else "Inference failed."
-        return msg, "", stdout
+        full_error = f"Exit Code: {result.returncode}\n\nSTDOUT:\n{stdout}\n\nSTDERR:\n{msg}"
+        return full_error, "", full_error
 
     results_text = ""
     time_text = ""

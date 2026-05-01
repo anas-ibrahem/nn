@@ -1,5 +1,6 @@
 import sys
 import os
+os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"  # SUPPRESS TENSORFLOW WARNINGS
 import time
 import pickle
 import numpy as np
@@ -153,11 +154,15 @@ def main():
         
         # 1.5. Apply StandardScaler (Fit earlier on X_cv during Model 4 AlexNet training)
         try:
-            embedding_scaled = scaler_alex.transform(embedding)
-        except NameError:
-            # Fallback if Dummy Classifier took over
+            # reshape to 2D for scaler
+            embedding_2d = embedding.reshape(1, -1)
+            embedding_scaled = scaler_alex.transform(embedding_2d)
+            # reshape back to shape expected by classifier (assumed 3D for 1D CNN: 1, 256, 1)
+            embedding_scaled = embedding_scaled.reshape(embedding.shape)
+        except Exception as scale_err:
+            print(f"Scaler exception: {scale_err}")
             embedding_scaled = embedding
-        
+            
         # 2. Get final class from AlexNet (assuming softmax output across 6 classes)
         pred_probs = classifier.predict(embedding_scaled, verbose=0)
         prediction = np.argmax(pred_probs, axis=-1)[0] 
