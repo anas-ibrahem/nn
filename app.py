@@ -46,8 +46,8 @@ def process_audio(zip_file):
 
 # Define Gradio Interface
 with gr.Blocks(title="Audio Anomaly Detection Pipeline") as demo:
-    gr.Markdown("# 🚀 Hybrid Audio Anomaly Detection")
-    gr.Markdown("Upload a **ZIP file** containing your `.wav` recordings. This Space runs the Autoencoder + AlexNet/XGBoost pipeline.")
+    gr.Markdown("# 🚀 Audio Anomaly Detection")
+    gr.Markdown("Upload a **ZIP file** containing your `.wav` recordings. This Space runs the Autoencoder + AlexNet pipeline.")
     
     with gr.Row():
         file_input = gr.File(label="Upload WAV Files (ZIP)", file_types=[".zip"])
