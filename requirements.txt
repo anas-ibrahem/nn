@@ -7,5 +7,4 @@ tensorflow-cpu
 scikit-learn
 pandas
 tqdm
-huggingface_hub==0.23.5
 
